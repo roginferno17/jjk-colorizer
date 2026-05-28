@@ -30,6 +30,9 @@ if not exist "%PROJECT_ROOT%\dataset\color_gege\15_gegecover, painterly watercol
     exit /b 1
 )
 
+echo Clearing stale latent cache...
+"%VENV%\Scripts\python.exe" "%PROJECT_ROOT%\clear_cache.py"
+
 cd /d "%SD_SCRIPTS%"
 
 echo Starting training...

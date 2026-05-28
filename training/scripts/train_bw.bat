@@ -51,6 +51,10 @@ if %count% LSS 100 (
 )
 
 echo.
+echo Clearing stale latent cache...
+"%VENV%\Scripts\python.exe" "%PROJECT_ROOT%\clear_cache.py"
+
+echo.
 echo Starting training...
 echo Monitor with: %VENV%\Scripts\tensorboard.exe --logdir "%PROJECT_ROOT%\training\logs\bw_lora"
 echo.

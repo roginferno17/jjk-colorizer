@@ -55,6 +55,9 @@ backend/uploads/
 backend/results/
 backend/.env
 
+# WD14 tagger downloaded model
+wd14_tagger_model/
+
 # Misc
 .DS_Store
 Thumbs.db

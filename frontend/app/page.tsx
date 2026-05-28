@@ -131,7 +131,7 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-white">GEGEAI 2.0</h1>
+          <h1 className="text-xl font-bold tracking-tight text-white">JJK Colorizer</h1>
           <p className="text-xs text-zinc-500 mt-0.5">Gege Akutami Style Transfer</p>
         </div>
         <div className="flex gap-1 bg-zinc-900 rounded-lg p-1">

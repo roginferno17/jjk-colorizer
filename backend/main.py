@@ -1,7 +1,7 @@
 """
 main.py
 =======
-FastAPI backend for GEGEAI2.0.
+FastAPI backend for JJK Colorizer.
 
 Endpoints:
     POST /api/upload              → {job_id}
@@ -31,7 +31,7 @@ from pydantic import BaseModel
 
 import forge_api as forge
 
-app = FastAPI(title="GEGEAI2.0 API")
+app = FastAPI(title="JJK Colorizer API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -189,5 +189,5 @@ def download_result(job_id: str, variant: str):
     if not file_path or not Path(file_path).exists():
         raise HTTPException(404, f"No {variant} output found")
 
-    filename = f"gegeai_{job_id}_{variant}.png"
+    filename = f"jjk_{job_id}_{variant}.png"
     return FileResponse(file_path, filename=filename, media_type="image/png")

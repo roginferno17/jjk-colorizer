@@ -300,7 +300,7 @@ def full_pipeline(
     seed: int = -1,
 ) -> dict:
     """
-    Run complete GEGEAI2.0 pipeline.
+    Run complete JJK Colorizer pipeline.
 
     Args:
         input_image: Path or PIL Image of input artwork

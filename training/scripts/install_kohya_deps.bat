@@ -1,5 +1,5 @@
 @echo off
-REM GEGEAI2.0 — Install kohya_ss dependencies into Python 3.10 venv
+REM JJK Colorizer — Install kohya_ss dependencies into Python 3.10 venv
 REM Run AFTER setup_kohya.bat and AFTER PyTorch install completes.
 REM Prerequisites:
 REM   - training\kohya_venv310\ exists (Python 3.10 venv)
@@ -12,7 +12,7 @@ set PIP=%VENV%\Scripts\pip.exe
 set PYTHON=%VENV%\Scripts\python.exe
 
 echo.
-echo GEGEAI2.0 -- kohya_ss Dependency Install
+echo JJK Colorizer -- kohya_ss Dependency Install
 echo ==========================================
 
 REM Verify Python 3.10

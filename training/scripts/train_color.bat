@@ -1,5 +1,5 @@
 @echo off
-REM GEGEAI2.0 — Launch Color LoRA Training (SDXL)
+REM JJK Colorizer — Launch Color LoRA Training (SDXL)
 REM Run AFTER BW LoRA training is complete and validated.
 REM Same prerequisites as train_bw.bat.
 
@@ -10,7 +10,7 @@ set CONFIG=%PROJECT_ROOT%\training\configs\color_lora_config.toml
 set ACCELERATE=%VENV%\Scripts\accelerate.exe
 
 echo.
-echo GEGEAI2.0 -- Color LoRA Training (SDXL)
+echo JJK Colorizer -- Color LoRA Training (SDXL)
 echo =========================================
 echo Script: sdxl_train_network.py
 echo Config: %CONFIG%

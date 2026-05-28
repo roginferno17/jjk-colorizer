@@ -1,7 +1,7 @@
 """
 preprocessing.py
 ================
-Image preprocessing utilities for GEGEAI2.0.
+Image preprocessing utilities for JJK Colorizer.
 
 Handles:
   - Image validation and normalization

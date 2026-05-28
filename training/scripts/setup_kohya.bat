@@ -1,5 +1,5 @@
 @echo off
-echo GEGEAI2.0 — kohya_ss Setup
+echo JJK Colorizer — kohya_ss Setup
 echo ===========================
 
 set PROJECT_ROOT=C:\Users\Vishu\Desktop\lock-in-jjk

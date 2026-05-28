@@ -1,7 +1,7 @@
 """
 download_models.py
 ==================
-Downloads all required models for GEGEAI2.0.
+Downloads all required models for JJK Colorizer.
 
 Models:
   1. Illustrious XL base checkpoint (~7GB)
@@ -127,7 +127,7 @@ def download_esrgan():
 
 
 def main():
-    print("GEGEAI2.0 — Model Download")
+    print("JJK Colorizer — Model Download")
     print("=" * 50)
     print(f"Forge models root: {FORGE_ROOT}")
 

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GEGEAI 2.0",
-  description: "Gege Akutami manga style transfer",
+  title: "JJK Colorizer",
+  description: "Gege Akutami manga style transfer and colorization",
 };
 
 export default function RootLayout({

@@ -1,5 +1,5 @@
 @echo off
-REM GEGEAI2.0 — Launch BW LoRA Training (SDXL)
+REM JJK Colorizer — Launch BW LoRA Training (SDXL)
 REM Prerequisites:
 REM   1. kohya_venv310 created with Python 3.10.11
 REM   2. PyTorch 2.3.1+cu121, xformers installed in venv
@@ -16,7 +16,7 @@ set CONFIG=%PROJECT_ROOT%\training\configs\bw_lora_config.toml
 set ACCELERATE=%VENV%\Scripts\accelerate.exe
 
 echo.
-echo GEGEAI2.0 -- BW LoRA Training (SDXL)
+echo JJK Colorizer -- BW LoRA Training (SDXL)
 echo ======================================
 echo Script: sdxl_train_network.py
 echo Config: %CONFIG%

@@ -1,4 +1,4 @@
-# JJK Colorizer — GEGEAI 2.0
+# JJK Colorizer
 
 Identity-preserving Gege Akutami manga style transfer and colorization pipeline.
 
@@ -317,7 +317,7 @@ jjk-colorizer/
 │       ├── train_bw.bat
 │       └── train_color.bat
 ├── dataset/                  # gitignored — supply your own
-├── GEGEAI2.md               # Full implementation diary + decisions
+├── DEVLOG.md                # Full implementation diary + decisions
 └── README.md
 ```
 

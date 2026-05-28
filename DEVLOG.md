@@ -1,4 +1,4 @@
-# GEGEAI2.0 — Master Implementation Document
+# JJK Colorizer — Implementation Devlog
 
 > **Purpose**: Complete step-by-step instruction set for building the Gege Akutami style-transfer and colorization pipeline. Written so any AI instance or developer can pick up exactly where work left off without re-deriving decisions.
 
@@ -853,7 +853,7 @@ digital painting, glossy, hyperrealistic, photorealistic
 
 ```
 lock-in-jjk/
-├── GEGEAI2.md                          ← THIS FILE
+├── DEVLOG.md                           ← THIS FILE
 ├── dataset/
 │   ├── bw_gege/10_gegeakutami, monochrome manga/
 │   ├── color_gege/15_gegecover, painterly watercolor cover/

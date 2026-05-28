@@ -1026,3 +1026,62 @@ Never auto-run training — it takes hours and needs human monitoring.
 - Likely sweet spot: epoch 9-13 (check sample outputs at each 1000-step save)
 - After BW LoRA validated: prepare color dataset + train LoRA_COLOR
 - ControlNet models for inference need to be verified/re-downloaded when we set up Forge API testing
+
+---
+
+### 2026-05-29 — Session 4
+
+**Training attempt 2 — started, then user reported catastrophic slowdown:**
+- Training launched via `train_bw.bat` (double-clicked from Explorer)
+- Initial output looked correct: 360 images found, 3600 with repeats, accelerator device: cuda
+- UNet loaded from safetensors ✓, text encoders loaded ✓, VAE loaded ✓
+- xformers enabled ✓, LoRA created (264 text encoder modules + 722 UNet modules)
+- AdamW8bit confirmed with correct betas tuple ✓
+- Latent caching started: 360/360 images encoded to .npz in 5 minutes 13 seconds (CPU fallback due to cuDNN 9 missing — ONNX only, harmless)
+- Training loop started — then: **275 seconds per iteration**, ETA ballooning to 147+ hours
+
+**Diagnosis — VRAM overflow:**
+- SDXL UNet (bf16) + text encoders + optimizer states = ~8.5GB peak → overflows 8GB → spills to system RAM
+- CPU RAM access is ~100x slower than VRAM → explains 275s/it vs expected 2-5s/it
+- Root cause: `lowram = true` was missing from config — text encoders were staying resident in VRAM during UNet training steps
+
+**User asked for full diagnostic + fix. Incorrect suggestions rejected:**
+- User's prompt suggested: reduce resolution to 512×512, switch to fp16
+- Both REJECTED:
+  - 512×512 breaks SDXL latent space entirely (designed for 1024, lower = garbage output)
+  - fp16 is LESS stable than bf16 on RTX 4060 (Ampere natively supports bf16; fp16 risks NaN loss)
+- All other suggested fixes (gradient_checkpointing, AdamW8bit, batch_size=1) were already set correctly
+
+**Fix applied — bw_lora_config.toml:**
+- Added `lowram = true` — offloads text encoders to CPU RAM after text encoding step, freeing ~1.5GB VRAM during UNet training
+- Fixed `num_train_epochs = 15` → `max_train_epochs = 15` — `num_train_epochs` is NOT a valid sd-scripts TOML key; script silently ignored it and defaulted to 2 epochs. All 15 previous "training" steps were just 2 epochs of overflowed garbage.
+
+**Fix applied — color_lora_config.toml:**
+- Same two bugs fixed: `num_train_epochs = 18` → `max_train_epochs = 18`, added `lowram = true`
+
+**Fix applied — train_bw.bat:**
+- Image count `for` loop was broken: `for %%f in ("path\with, comma\*.png")` — cmd treats comma as list separator even inside quotes in FOR glob patterns → always counted 0 images → always triggered the false "< 100 images" warning + pause on every run
+- Fixed: replaced `for` loop with `powershell -Command "Get-ChildItem ... .Count"` which handles comma in path correctly
+
+**Cached latents (.npz files) kept:**
+- 360 .npz files from the failed slow run are in the dataset folder — these are VALID
+- Latent caching = VAE encoding only (not UNet), independent of the VRAM overflow bug
+- Reusing them saves 5+ minutes of re-caching on next training launch
+
+**Committed to GitHub:**
+- `training/configs/bw_lora_config.toml` — lowram + epoch key fix
+- `training/configs/color_lora_config.toml` — same fixes
+- `training/scripts/train_bw.bat` — PowerShell-based image count
+- Pushed to `roginferno17/jjk-colorizer` master (commit b776d96)
+
+**Current status:**
+- Training attempt 3 about to launch with fixed config
+- Expected: total optimization steps = 13500 (15 epochs × 900 steps), steps/it = 2-5s
+- If VRAM still overflows: next step would be reducing network_dim from 32 to 16
+
+**What to watch for when training runs:**
+- `total optimization steps: 13500` — confirms max_train_epochs=15 was read
+- Steps/it drops to 2-5s — confirms lowram fixed the overflow
+- No `CUDA out of memory` error
+- Sample images generated at step 1000 (`training\output\bw_lora\sample\`)
+- Loss curve should decrease steadily, not spike or NaN

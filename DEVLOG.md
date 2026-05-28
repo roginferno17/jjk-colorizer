@@ -1086,13 +1086,44 @@ Never auto-run training — it takes hours and needs human monitoring.
 - Sample images generated at step 1000 (`training\output\bw_lora\sample\`)
 - Loss curve should decrease steadily, not spike or NaN
 
-**Training attempt 3 — LAUNCHED (2026-05-29 00:04):**
+**Training attempt 3 — PARTIALLY SUCCESSFUL, then stopped:**
 - `total optimization steps: 13500` ✓ — max_train_epochs=15 confirmed reading correctly
 - `epoch 1/15` ✓ — epoch key fix confirmed
-- triton warnings: harmless (Linux-only, xformers still active via CUDA)
-- flash attention warning: harmless fallback
-- `avr_loss=0.0669` showing at step 0 — computation happening, loss looks healthy
-- `?it/s` at 1min 11sec — normal, gradient_accumulation=4 means 4 forward passes before first step counter ticks
-- Waiting on first it/s reading to confirm VRAM overflow is resolved
-- If 2-8s/it → training healthy, let run overnight (~4-5 hours for 13500 steps)
-- If 60s+/it → still overflowing, next fix: reduce network_dim 32→16 in config
+- lowram fix brought speed from 275s/it → 27s/it (10x improvement)
+- BUT 27s/it × 13500 = 101 hours ETA — still overflowing into system RAM
+- Root cause: lowram offloads text encoders but UNet activations at 1024x1024 + Adafactor states still exceed 8GB
+- Training stopped to apply next round of fixes
+
+**Training attempt 3 fixes applied (committed 48c4014):**
+
+Fix 1 — Resolution 1024→768:
+- Both configs: `resolution = "768,768"`, `max_bucket_reso = 768`, `min_bucket_reso = 512`
+- Activation memory scales quadratically: (768/1024)^2 = 56% of 1024 → saves ~1.5GB during UNet forward pass
+- SDXL CAN train at 768 (VAE produces 96x96 latents, within valid operating range)
+- Inference still runs at 1024 — LoRA delta weights generalize across resolutions
+
+Fix 2 — Optimizer AdamW8bit → Adafactor:
+- Adafactor uses factored second-moment estimation: O(sqrt(params)) vs O(params) for Adam
+- Saves ~1-1.5GB optimizer state memory for LoRA rank 32
+- Args: `["scale_parameter=False", "relative_step=False", "warmup_init=False"]`
+  - scale_parameter=False: don't scale LR by param norms (we set LR explicitly)
+  - relative_step=False: use fixed LR (not Adafactor's internal adaptive schedule)
+  - warmup_init=False: no internal warmup (handled by cosine scheduler)
+- LR adjusted to 1e-4 (correct range for fixed-LR Adafactor with LoRA)
+- Both configs updated
+
+What was NOT changed (already correct, user suggestions rejected where wrong):
+- gradient_checkpointing=true — already set
+- train_batch_size=1 — already set
+- xformers=true — already set in config, active in training
+- network_dim=32/16 — within acceptable range, no change needed
+
+Stale .npz cache cleared:
+- 360 .npz files encoded at 1024-resolution are now invalid (wrong latent shape 128x128 vs new 96x96)
+- `clear_cache.py` written to delete them (user runs before training)
+- Training will re-cache at 768 on first run (takes ~5 min)
+
+Expected result after these fixes:
+- Combined ~3GB VRAM freed (1.5GB activations + 1.5GB optimizer)
+- Projected: 2-6s/it → ETA 7-20 hours (acceptable for overnight run)
+- If still slow: next option is network_dim 32→16 (halves LoRA capacity but saves more VRAM)

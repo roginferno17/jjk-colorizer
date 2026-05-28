@@ -1085,3 +1085,14 @@ Never auto-run training — it takes hours and needs human monitoring.
 - No `CUDA out of memory` error
 - Sample images generated at step 1000 (`training\output\bw_lora\sample\`)
 - Loss curve should decrease steadily, not spike or NaN
+
+**Training attempt 3 — LAUNCHED (2026-05-29 00:04):**
+- `total optimization steps: 13500` ✓ — max_train_epochs=15 confirmed reading correctly
+- `epoch 1/15` ✓ — epoch key fix confirmed
+- triton warnings: harmless (Linux-only, xformers still active via CUDA)
+- flash attention warning: harmless fallback
+- `avr_loss=0.0669` showing at step 0 — computation happening, loss looks healthy
+- `?it/s` at 1min 11sec — normal, gradient_accumulation=4 means 4 forward passes before first step counter ticks
+- Waiting on first it/s reading to confirm VRAM overflow is resolved
+- If 2-8s/it → training healthy, let run overnight (~4-5 hours for 13500 steps)
+- If 60s+/it → still overflowing, next fix: reduce network_dim 32→16 in config

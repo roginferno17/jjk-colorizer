@@ -1127,3 +1127,40 @@ Expected result after these fixes:
 - Combined ~3GB VRAM freed (1.5GB activations + 1.5GB optimizer)
 - Projected: 2-6s/it → ETA 7-20 hours (acceptable for overnight run)
 - If still slow: next option is network_dim 32→16 (halves LoRA capacity but saves more VRAM)
+
+**Training attempt 4 — caching phase at 111s/it (still overflowing):**
+- VAE caching of 360 images at 768x768 was hitting VRAM overflow
+- Default vae_batch_size batches multiple images → exceeded 8GB during caching phase
+
+**Round 3 fixes applied (commit 7cf77f2):**
+
+Fix 1 — `vae_batch_size = 1`:
+- Forces VAE to encode one image at a time during latent caching
+- Prevents the VRAM spike that caused 111s/it during caching phase
+- Small VRAM footprint: SDXL VAE alone = ~0.8GB, no overflow at batch=1
+
+Fix 2 — `cache_text_encoder_outputs = true` + `cache_text_encoder_outputs_to_disk = true`:
+- Pre-computes ALL text embeddings once before training starts → saves to disk as .npz
+- During training: text encoders are COMPLETELY absent from VRAM (not even lowram-offloaded — they're not loaded at all)
+- Saves ~0.6-1.2GB VRAM during every training step
+- Combined with latent caching: UNet sees pre-computed (latent, embedding) pairs from disk
+
+Fix 3 — `shuffle_caption = false`:
+- REQUIRED when using cache_text_encoder_outputs — pre-computed embeddings are static, can't shuffle
+- Impact: minor. Trigger words already protected by keep_tokens=2. Style LoRA doesn't depend on caption order variation as heavily as character LoRA.
+
+Rejected user suggestion — fp16:
+- User suggested `mixed_precision="fp16"` for VAE
+- REJECTED: SDXL VAE is known to produce NaN outputs in fp16. Kept bf16.
+- The VAE fix is vae_batch_size=1, not precision reduction.
+
+clear_cache.py updated to handle both bw and color dataset folders.
+
+**Launch procedure (attempt 4):**
+```
+cd C:\Users\Vishu\Desktop\lock-in-jjk
+training\kohya_venv310\Scripts\python.exe clear_cache.py
+```
+Then double-click `training\scripts\train_bw.bat`
+
+Expected: caching phase completes in ~5-10 min at 1-2s/image, then training at 2-6s/it.

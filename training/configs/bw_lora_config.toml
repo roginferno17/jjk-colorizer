@@ -27,6 +27,7 @@ keep_tokens = 2
 output_dir = "C:/Users/Vishu/Desktop/lock-in-jjk/training/output/bw_lora"
 output_name = "gege_bw_lora"
 save_model_as = "safetensors"
+save_precision = "bf16"
 save_every_n_steps = 1000
 
 max_train_epochs = 15

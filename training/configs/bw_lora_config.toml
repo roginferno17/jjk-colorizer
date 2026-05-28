@@ -10,10 +10,10 @@ v_parameterization = false
 
 [dataset_arguments]
 train_data_dir = "C:/Users/Vishu/Desktop/lock-in-jjk/dataset/bw_gege"
-resolution = "1024,1024"
+resolution = "768,768"
 enable_bucket = true
-min_bucket_reso = 768
-max_bucket_reso = 1024
+min_bucket_reso = 512
+max_bucket_reso = 768
 bucket_reso_steps = 64
 flip_aug = true
 color_aug = false
@@ -34,13 +34,13 @@ train_batch_size = 1
 gradient_accumulation_steps = 4
 gradient_checkpointing = true
 
-learning_rate = 8e-5
+learning_rate = 1e-4
 lr_scheduler = "cosine_with_restarts"
 lr_warmup_steps = 200
 lr_scheduler_num_cycles = 3
 
-optimizer_type = "AdamW8bit"
-optimizer_args = ["weight_decay=0.1", "betas=(0.9,0.999)"]
+optimizer_type = "Adafactor"
+optimizer_args = ["scale_parameter=False", "relative_step=False", "warmup_init=False"]
 
 mixed_precision = "bf16"
 full_bf16 = true

@@ -919,3 +919,59 @@ lock-in-jjk/
 ---
 
 *Update this file after every completed step. Every decision, every parameter change, every failure must be logged here.*
+
+---
+
+### 2026-05-28 — Session 2
+
+**GitHub repo created:** https://github.com/roginferno17/jjk-colorizer (public)
+
+**Environment fully resolved — Phase 0 COMPLETE:**
+- PyTorch 2.3.1+cu121 installed in kohya_venv310 ✓ (CUDA: True)
+- xformers 0.0.27 in kohya_venv310 ✓
+- numpy<2 downgrade applied ✓ (xformers 0.0.27 compiled with NumPy 1.x)
+- accelerate 1.13.0 ✓
+- bitsandbytes 0.49.2 ✓
+- diffusers 0.32.2 ✓
+- sd-scripts submodule initialized (`training/kohya_ss/sd-scripts/`) ✓
+- sd-scripts library package installed ✓
+- sdxl_train_network.py imports verified ✓ (triton warning harmless on Windows)
+- accelerate config: bf16, single GPU — pre-existing config reused ✓
+- Illustrious XL v0.1 (6.46GB) → Forge Stable-diffusion folder ✓
+- Forge confirmed RTX 4060 by user ✓
+- Forge --api flag confirmed by user ✓
+
+**Bug fixes applied this session:**
+- `betas=[...]` → `betas=(...)` in optimizer_args — PyTorch AdamW requires tuple not list
+- `train_bw.bat` / `train_color.bat`: corrected to `sdxl_train_network.py`, fixed accelerate path to venv's exe, fixed cd to sd-scripts dir
+- Do NOT use `pip install -e .` on kohya_ss root (requires torch>=2.5.0 — would break cu121)
+
+**Dataset updated by user:**
+- Old 114 BW images deleted, 300+ new BW images added
+- Color dataset: 73 processed PNGs remain
+
+**Frontend/backend written:**
+- `frontend/app/page.tsx` — dark UI, drag-drop, B&W/Full mode, progress bar, results
+- `backend/` — FastAPI with job queue, Forge API wrapper, preprocessing
+
+**Active decision: training protocol**
+User will run all training commands in separate terminal and report results/errors back here.
+Never auto-run training — it takes hours and needs human monitoring.
+
+**Next steps:**
+
+1. **[User runs]** Process new BW dataset:
+   ```
+   training\kohya_venv310\Scripts\python.exe training\scripts\prepare_dataset_bw.py
+   ```
+
+2. **[User runs]** Caption BW dataset — add structural tags to .txt stubs, then:
+   ```
+   training\kohya_venv310\Scripts\python.exe training\scripts\caption_cleanup.py
+   ```
+
+3. **[User runs]** Train BW LoRA (expect 3-5 hours on RTX 4060):
+   ```
+   training\scripts\train_bw.bat
+   ```
+   Report: any errors, what step it crashes/succeeds at, VRAM usage from task manager.

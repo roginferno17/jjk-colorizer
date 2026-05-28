@@ -1164,3 +1164,21 @@ training\kohya_venv310\Scripts\python.exe clear_cache.py
 Then double-click `training\scripts\train_bw.bat`
 
 Expected: caching phase completes in ~5-10 min at 1-2s/image, then training at 2-6s/it.
+
+**Training attempt 4 — FAILED immediately:**
+Error: `AssertionError: network for Text Encoder cannot be trained with caching Text Encoder outputs`
+
+Root cause: LoRA by default trains BOTH UNet (722 modules) AND text encoders (264 modules). `cache_text_encoder_outputs=true` pre-computes text embeddings and removes text encoders from the process entirely. Can't train something that isn't loaded.
+
+Fix (commit 1bdf295): `network_train_unet_only = true` in both configs.
+- Disables text encoder LoRA modules entirely
+- LoRA only trains on UNet (722 modules)
+- Text encoders pre-compute embeddings once → cached to disk → never loaded during training
+- Trade-off: style LoRA operates primarily through UNet anyway. Text encoder LoRA helps trigger word binding for character/concept LoRAs, less critical for style.
+- VRAM saved: ~0.6-1.2GB (text encoder weights + no gradient tracking on them)
+
+**Attempt 5 launching now — run same procedure:**
+```
+training\kohya_venv310\Scripts\python.exe clear_cache.py
+```
+Then double-click `training\scripts\train_bw.bat`

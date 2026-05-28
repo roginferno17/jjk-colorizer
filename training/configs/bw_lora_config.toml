@@ -1,0 +1,67 @@
+# GEGEAI2.0 — LoRA_BW Training Config
+# Base: Illustrious XL
+# Target: Gege Akutami black-and-white manga rendering style
+# Hardware: RTX 4060 Laptop 8GB VRAM
+
+[model_arguments]
+pretrained_model_name_or_path = "C:/Users/Vishu/AI/StabilityMatrix/Data/Packages/forge-neo/models/Stable-diffusion/Illustrious-XL-v0.1.safetensors"
+v2 = false
+v_parameterization = false
+
+[dataset_arguments]
+train_data_dir = "C:/Users/Vishu/Desktop/lock-in-jjk/dataset/bw_gege"
+resolution = "1024,1024"
+enable_bucket = true
+min_bucket_reso = 768
+max_bucket_reso = 1024
+bucket_reso_steps = 64
+flip_aug = true
+color_aug = false
+face_crop_aug_range = "1.0,1.5"
+random_crop = false
+caption_extension = ".txt"
+shuffle_caption = true
+keep_tokens = 2
+
+[training_arguments]
+output_dir = "C:/Users/Vishu/Desktop/lock-in-jjk/training/output/bw_lora"
+output_name = "gege_bw_lora"
+save_model_as = "safetensors"
+save_every_n_steps = 1000
+
+num_train_epochs = 15
+train_batch_size = 1
+gradient_accumulation_steps = 4
+gradient_checkpointing = true
+
+learning_rate = 8e-5
+lr_scheduler = "cosine_with_restarts"
+lr_warmup_steps = 200
+lr_scheduler_num_cycles = 3
+
+optimizer_type = "AdamW8bit"
+optimizer_args = ["weight_decay=0.1", "betas=(0.9,0.999)"]
+
+mixed_precision = "bf16"
+full_bf16 = true
+xformers = true
+
+cache_latents = true
+cache_latents_to_disk = true
+
+[network_arguments]
+network_module = "networks.lora"
+network_dim = 32
+network_alpha = 16
+
+[logging_arguments]
+log_with = "tensorboard"
+logging_dir = "C:/Users/Vishu/Desktop/lock-in-jjk/training/logs/bw_lora"
+
+[sample_prompt_arguments]
+sample_every_n_steps = 1000
+sample_sampler = "dpmpp_2m"
+sample_prompts = [
+  "gegeakutami, monochrome manga, 1boy, spiky hair, intense expression, hatching, manga panel, high contrast",
+  "gegeakutami, monochrome manga, closeup face, dramatic shadows, cross hatching, rough ink lines"
+]

@@ -1,0 +1,66 @@
+# GEGEAI2.0 — LoRA_COLOR Training Config
+# Base: Illustrious XL
+# Target: Gege Akutami volume cover colorization style
+# Hardware: RTX 4060 Laptop 8GB VRAM
+# NOTE: More conservative LR than BW — color LoRAs overfit faster
+
+[model_arguments]
+pretrained_model_name_or_path = "C:/Users/Vishu/AI/StabilityMatrix/Data/Packages/forge-neo/models/Stable-diffusion/Illustrious-XL-v0.1.safetensors"
+v2 = false
+v_parameterization = false
+
+[dataset_arguments]
+train_data_dir = "C:/Users/Vishu/Desktop/lock-in-jjk/dataset/color_gege"
+resolution = "1024,1024"
+enable_bucket = true
+min_bucket_reso = 768
+max_bucket_reso = 1024
+bucket_reso_steps = 64
+flip_aug = true
+color_aug = false
+random_crop = false
+caption_extension = ".txt"
+shuffle_caption = true
+keep_tokens = 2
+
+[training_arguments]
+output_dir = "C:/Users/Vishu/Desktop/lock-in-jjk/training/output/color_lora"
+output_name = "gege_color_lora"
+save_model_as = "safetensors"
+save_every_n_steps = 500
+
+num_train_epochs = 18
+train_batch_size = 1
+gradient_accumulation_steps = 4
+gradient_checkpointing = true
+
+learning_rate = 6e-5
+lr_scheduler = "cosine"
+lr_warmup_steps = 100
+
+optimizer_type = "AdamW8bit"
+optimizer_args = ["weight_decay=0.05", "betas=(0.9,0.999)"]
+
+mixed_precision = "bf16"
+full_bf16 = true
+xformers = true
+
+cache_latents = true
+cache_latents_to_disk = true
+
+[network_arguments]
+network_module = "networks.lora"
+network_dim = 16
+network_alpha = 8
+
+[logging_arguments]
+log_with = "tensorboard"
+logging_dir = "C:/Users/Vishu/Desktop/lock-in-jjk/training/logs/color_lora"
+
+[sample_prompt_arguments]
+sample_every_n_steps = 500
+sample_sampler = "dpmpp_2m"
+sample_prompts = [
+  "gegecover, painterly watercolor cover, 1boy, white hair, blue eyes, volume cover art, muted colors",
+  "gegecover, painterly watercolor cover, portrait, dramatic lighting, cinematic, watercolor texture"
+]

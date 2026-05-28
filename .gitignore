@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# Training venv (large, rebuild from instructions)
+training/kohya_venv310/
+
+# kohya_ss full clone (clone separately per README)
+training/kohya_ss/
+
+# Training output (LoRA weights) — large, user-generated
+training/output/
+
+# Training cache
+training/logs/
+dataset/.cache/
+
+# Dataset images — proprietary/large, user must supply
+dataset/**/*.png
+dataset/**/*.jpg
+dataset/**/*.jpeg
+dataset/**/*.webp
+dataset/**/*.PNG
+dataset/**/*.JPG
+dataset/**/*.JPEG
+
+# Model weights
+*.safetensors
+*.ckpt
+*.pth
+*.pt
+*.bin
+models/
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+frontend/.env*.local
+
+# Backend
+backend/uploads/
+backend/results/
+backend/.env
+
+# Misc
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Secrets
+.env
+*.env

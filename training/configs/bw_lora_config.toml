@@ -29,7 +29,7 @@ output_name = "gege_bw_lora"
 save_model_as = "safetensors"
 save_every_n_steps = 1000
 
-num_train_epochs = 15
+max_train_epochs = 15
 train_batch_size = 1
 gradient_accumulation_steps = 4
 gradient_checkpointing = true
@@ -45,6 +45,8 @@ optimizer_args = ["weight_decay=0.1", "betas=(0.9,0.999)"]
 mixed_precision = "bf16"
 full_bf16 = true
 xformers = true
+
+lowram = true
 
 cache_latents = true
 cache_latents_to_disk = true

@@ -14,6 +14,7 @@ set SD_SCRIPTS=%PROJECT_ROOT%\training\kohya_ss\sd-scripts
 set VENV=%PROJECT_ROOT%\training\kohya_venv310
 set CONFIG=%PROJECT_ROOT%\training\configs\bw_lora_config.toml
 set ACCELERATE=%VENV%\Scripts\accelerate.exe
+set DATASET_DIR=%PROJECT_ROOT%\dataset\bw_gege\10_gegeakutami, monochrome manga
 
 echo.
 echo JJK Colorizer -- BW LoRA Training (SDXL)
@@ -31,17 +32,16 @@ if not exist "%ACCELERATE%" (
     exit /b 1
 )
 
-REM Verify dataset exists
-if not exist "%PROJECT_ROOT%\dataset\bw_gege\10_gegeakutami, monochrome manga" (
+REM Verify dataset folder exists
+if not exist "%DATASET_DIR%" (
     echo ERROR: BW dataset folder not found
-    echo Expected: %PROJECT_ROOT%\dataset\bw_gege\10_gegeakutami, monochrome manga
+    echo Expected: %DATASET_DIR%
     pause
     exit /b 1
 )
 
-REM Count images
-set count=0
-for %%f in ("%PROJECT_ROOT%\dataset\bw_gege\10_gegeakutami, monochrome manga\*.png") do set /a count+=1
+REM Count images using PowerShell (handles comma in path correctly)
+for /f %%c in ('powershell -NoProfile -Command "(Get-ChildItem -Path '%PROJECT_ROOT%\dataset\bw_gege\10_gegeakutami, monochrome manga' -Filter '*.png').Count"') do set count=%%c
 echo Images found: %count%
 if %count% LSS 100 (
     echo WARNING: Less than 100 images. Training quality will be low.

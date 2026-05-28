@@ -1182,3 +1182,34 @@ Fix (commit 1bdf295): `network_train_unet_only = true` in both configs.
 training\kohya_venv310\Scripts\python.exe clear_cache.py
 ```
 Then double-click `training\scripts\train_bw.bat`
+
+**Session continued — aggressive VRAM pass (commit 494b764):**
+
+User reported training still bottlenecking (111s/it from caching phase). Applied extreme VRAM reduction round.
+
+`fp8_base = true`:
+- Puts UNet weights into torch.float8_e4m3fn (8-bit float)
+- SDXL UNet in bf16 = ~3.5GB, in fp8 = ~1.75GB. Saves ~1.75GB
+- Activations and gradients still in bf16 (hardware requirement)
+- Requires torch>=2.1.0 (have 2.3.1 ✓) and Ada/Hopper GPU (RTX 4060 = Ada SM 8.9 ✓)
+- Correct flag: fp8_base=true in TOML. NOT mixed_precision="fp8" (invalid).
+
+`fused_backward_pass = true`:
+- User requested. Argument IS registered in train_util.py but actual fused loop is NOT in sdxl_train_network.py (only in sdxl_train.py, flux_train.py, sd3_train.py).
+- In LoRA trainer: accepted without error, no-op. Does NOT crash.
+- Side effect: forces gradient_accumulation_steps=1 (assertion in train_util.py)
+- Added anyway since harmless, and forced gradient_accum=1 reduces per-step memory slightly.
+
+`gradient_accumulation_steps = 1`:
+- Changed from 4. Required for fused_backward_pass assertion.
+- Effect on training: effective batch goes from 4 to 1. LR may be slightly too high now.
+  If loss spikes, reduce LR to 5e-5 in next session.
+
+`max_data_loader_n_workers = 0`:
+- Disables PyTorch multiprocessing for data loading
+- Eliminates worker process memory duplication
+- Slight throughput reduction but better for memory-constrained systems
+
+`mixed_precision` kept at "bf16" — NOT changed to fp8 (invalid accelerate option).
+
+Both configs updated identically. Auto-cache-clear already in bat files — user just double-clicks.

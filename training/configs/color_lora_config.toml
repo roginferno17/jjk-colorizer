@@ -57,6 +57,7 @@ cache_text_encoder_outputs_to_disk = true
 network_module = "networks.lora"
 network_dim = 16
 network_alpha = 8
+network_train_unet_only = true
 
 [logging_arguments]
 log_with = "tensorboard"

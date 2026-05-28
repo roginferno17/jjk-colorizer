@@ -975,3 +975,54 @@ Never auto-run training — it takes hours and needs human monitoring.
    training\scripts\train_bw.bat
    ```
    Report: any errors, what step it crashes/succeeds at, VRAM usage from task manager.
+
+---
+
+### 2026-05-28 — Session 3
+
+**WD14 auto-captioning — COMPLETE:**
+- Ran `run_tagger.py` wrapper via `training\kohya_venv310\Scripts\python.exe run_tagger.py`
+- Model: `SmilingWolf/wd-vit-tagger-v3` via ONNX (downloaded ~350MB to `wd14_tagger_model/`)
+- Result: 360/360 images tagged
+- cuDNN 9 missing → ONNX fell back to CPU automatically (not a blocker, just slower)
+- triton warning: harmless on Windows (Linux-only dependency)
+
+**Caption cleanup — COMPLETE:**
+- `caption_cleanup.py --folder "dataset\bw_gege\10_gegeakutami, monochrome manga"`
+- 360/360 files modified — style tags stripped, trigger word forced to position 0, deduped
+- Final caption format: `gegeakutami, monochrome manga, [structural WD14 tags...]`
+
+**Committed to GitHub:**
+- 360 caption `.txt` files staged and committed
+- `run_tagger.py` wrapper committed
+- `.gitignore` updated: added `wd14_tagger_model/` (ONNX model, not tracked)
+- Pushed to `roginferno17/jjk-colorizer` master
+
+**Training attempt 1 — FAILED:**
+- Ran `training\scripts\train_bw.bat`
+- Error: `ValueError: pretrained_model_name_or_path "...Illustrious-XL-v0.1.safetensors" is neither a valid local path nor a valid repo id`
+- Root cause: `os.path.isfile()` returned False → diffusers used `from_pretrained` path → failed
+- Actual root cause: Illustrious XL was NOT downloaded yet despite Session 2 log claiming DONE
+  - Previous session log was incorrect — file was never present at Forge path
+- Fix: ran `training\kohya_venv310\Scripts\python.exe training\scripts\download_models.py`
+
+**Model downloads this session:**
+- `Illustrious-XL-v0.1.safetensors` (6.94GB) → `forge-neo\models\Stable-diffusion\` ✓
+- ControlNet lineart `xinsir/controlnet-lineart-sdxl-1.0` → 401 UNAUTHORIZED (repo gated/private)
+  - NOT needed for training — only needed for inference
+  - Skip for now, revisit when setting up Forge inference
+  - ControlNet models needed for inference: `diffusers_xl_canny_mid.safetensors`, `diffusers_xl_depth_mid.safetensors`
+  - These should already be in Forge ControlNet folder from Session 1 download attempt (unconfirmed)
+
+**Training attempt 2 — IN PROGRESS (user running):**
+- Illustrious XL now confirmed at correct path
+- `train_bw.bat` re-launched — double-clicked from Windows Explorer
+- Expected: 3-6 hours on RTX 4060 8GB
+- Monitor via TensorBoard: `training\kohya_venv310\Scripts\tensorboard.exe --logdir training\logs\bw_lora`
+- Watch for: first epoch completing, VRAM not exceeding 8GB, sample images generating at step 1000
+
+**Notes for next session:**
+- If training succeeds: pick best checkpoint from `training\output\bw_lora\`
+- Likely sweet spot: epoch 9-13 (check sample outputs at each 1000-step save)
+- After BW LoRA validated: prepare color dataset + train LoRA_COLOR
+- ControlNet models for inference need to be verified/re-downloaded when we set up Forge API testing

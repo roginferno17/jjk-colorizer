@@ -20,7 +20,7 @@ color_aug = false
 face_crop_aug_range = "1.0,1.5"
 random_crop = false
 caption_extension = ".txt"
-shuffle_caption = true
+shuffle_caption = false
 keep_tokens = 2
 
 [training_arguments]
@@ -48,8 +48,11 @@ xformers = true
 
 lowram = true
 
+vae_batch_size = 1
 cache_latents = true
 cache_latents_to_disk = true
+cache_text_encoder_outputs = true
+cache_text_encoder_outputs_to_disk = true
 
 [network_arguments]
 network_module = "networks.lora"
